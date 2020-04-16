@@ -14,6 +14,7 @@ using namespace std;
 
 
 bool run;
+bool Gameover = false;
 int cn=0;//use for random canals
 int cn2=0;//use for random day and night
 
@@ -60,8 +61,8 @@ SDL_Rect canal1rdw={760,630,152,25};
 SDL_Rect canal2rdw={760,290,152,365};
 SDL_Rect canal3rdw={760,570,152,85};
 SDL_Rect canal4rdw={760,470,152,185};
-
-
+//GameOver Rect
+SDL_Rect GO={0,0,500,500};
 
 
 
@@ -161,8 +162,6 @@ bool init()
 	return success;
 }
 
-
-
 void loadMedia()
 {
 	//Load random image
@@ -180,56 +179,60 @@ void loadMedia()
 
 bool checkcollision()
 {
-	if(SDL_HasIntersection(&grect1, &canal1rup) == true)
+	if (Gameover == false)
 	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	if(SDL_HasIntersection(&grect1, &canal1rdw) == true)
-	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	if(SDL_HasIntersection(&grect1, &canal2rup) == true)
-	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	if(SDL_HasIntersection(&grect1, &canal2rdw) == true)
-	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	if(SDL_HasIntersection(&grect1, &canal3rup) == true)
-	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	if(SDL_HasIntersection(&grect1, &canal3rdw) == true)
-	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	if(SDL_HasIntersection(&grect1, &canal4rup) == true)
-	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	if(SDL_HasIntersection(&grect1, &canal4rdw) == true)
-	{
-		bird1.lose=true;
-		Mix_PlayChannel(-1, Lose_sound, 0);
-		return false;
-	}
-	return true;
+		if (SDL_HasIntersection(&grect1, &canal1rup) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		if (SDL_HasIntersection(&grect1, &canal1rdw) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		if (SDL_HasIntersection(&grect1, &canal2rup) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		if (SDL_HasIntersection(&grect1, &canal2rdw) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		if (SDL_HasIntersection(&grect1, &canal3rup) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		if (SDL_HasIntersection(&grect1, &canal3rdw) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		if (SDL_HasIntersection(&grect1, &canal4rup) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		if (SDL_HasIntersection(&grect1, &canal4rdw) == true)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
 
+		return true;
+	}
+	
 }
 
 bool start = false;
@@ -375,11 +378,11 @@ void setcn2()
 
 void GameOver()
 {
+	Gameover = true;
 	SDL_FreeSurface(gSurface1);
 	SDL_DestroyTexture(gTexture1);
 	gSurface1 = SDL_LoadBMP("Media/GO.bmp");
 	gTexture2 = SDL_CreateTextureFromSurface(gRenderer, gSurface1);
-	// grect1.y = 1000;
 }
 
 int main()
@@ -429,6 +432,7 @@ int main()
 				SDL_RenderCopy(gRenderer, canal2dw, NULL, &canal2rdw);
 				SDL_RenderCopy(gRenderer, canal3dw, NULL, &canal3rdw);
 				SDL_RenderCopy(gRenderer, canal4dw, NULL, &canal4rdw);
+				SDL_RenderCopy(gRenderer, gTexture2, NULL, &GO);
 
 				//movement of back ground
 				b++;
@@ -449,9 +453,14 @@ int main()
 
 				SDL_RenderCopy(gRenderer, gTexture1, NULL, &grect1);
 				SDL_RenderPresent(gRenderer);
-			} while (movebird(e, quit) && !*quit);
+				if (movebird(e, quit) == false)
+				{
+					GameOver();
+				}
+				
+			} while (!*quit);
 
-			// run = false;
+			run = false;
 		}
 	}
 }
