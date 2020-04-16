@@ -14,7 +14,8 @@ using namespace std;
 
 
 bool run;
-bool Gameover = false;
+bool Gameover;
+bool StartGame = true;
 int cn=0;//use for random canals
 int cn2=0;//use for random day and night
 
@@ -174,7 +175,7 @@ void loadMedia()
 		background = SDL_LoadBMP("Media/daybackground2.bmp");
 	}
   			
-   			gbackgroundT = SDL_CreateTextureFromSurface(gRenderer, background);
+   	gbackgroundT = SDL_CreateTextureFromSurface(gRenderer, background);
 }
 
 bool checkcollision()
@@ -376,13 +377,71 @@ void setcn2()
 	cn2 = rand() % 2 + 1;
 }
 
-void GameOver()
+void GameOver(SDL_Event e)
 {
 	Gameover = true;
+	GO.h = 500;
+	GO.w = 500;
+	// StartGame = false;
 	SDL_FreeSurface(gSurface1);
 	SDL_DestroyTexture(gTexture1);
 	gSurface1 = SDL_LoadBMP("Media/GO.bmp");
 	gTexture2 = SDL_CreateTextureFromSurface(gRenderer, gSurface1);
+	SDL_PollEvent(&e);
+	if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
+	{
+		SDL_DestroyTexture(gTexture2);
+		GO.h = 0;
+		GO.w = 0;
+		Gameover = false;
+		if (cn2 == 1)
+		{
+			gSurface1 = SDL_LoadBMP("Media/bird11.bmp");
+		}
+		if (cn2 == 2)
+		{
+			gSurface1 = SDL_LoadBMP("Media/Bird2.bmp");
+		}
+		gTexture1 = SDL_CreateTextureFromSurface(gRenderer, gSurface1);
+		Mix_PlayMusic(gMusic, -1);
+		bird1.x = 340;
+    	bird1.y = 360;
+		grect1.x = bird1.x;
+		grect1.y = bird1.y;
+		switch (canalnum)
+		{
+		case 1:
+		{
+
+			canal1rup.x = 760;
+			canal1rdw.x = 760;
+			break;
+		}
+
+		case 2:
+		{
+
+			canal2rup.x = 760;
+			canal2rdw.x = 760;
+
+			break;
+		}
+
+		case 3:
+		{
+			canal3rup.x = 760;
+			canal3rdw.x = 760;
+			break;
+		}
+
+		case 4:
+		{
+			canal4rup.x = 760;
+			canal4rdw.x = 760;
+			break;
+		}
+		}
+	}
 }
 
 int main()
@@ -405,7 +464,7 @@ int main()
 		SDL_Event e;
 
 		//Load media
-		while (!*quit && run) //you can add a condition for run game again by menu in this while !!!!!!!!!!
+		while (!*quit && StartGame) //you can add a condition for run game again by menu in this while !!!!!!!!!!
 		{
 			while (SDL_PollEvent(&e) != 0)
 			{
@@ -415,7 +474,7 @@ int main()
 				}
 			}
 			loadMedia();
-
+			Gameover = false;
 			//Playing the main music
 			Mix_PlayMusic(gMusic, -1);
 
@@ -455,9 +514,8 @@ int main()
 				SDL_RenderPresent(gRenderer);
 				if (movebird(e, quit) == false)
 				{
-					GameOver();
+					GameOver(e);
 				}
-				
 			} while (!*quit);
 
 			run = false;
