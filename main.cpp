@@ -15,8 +15,9 @@ using namespace std;
 
 bool run;
 bool Gameover;
+int POINTS = 0;
+bool loadendemage=false;
 bool StartGame = true;
-int POINTS = 10;
 int cn=0;//use for random canals
 int cn2=0;//use for random day and night
 
@@ -51,8 +52,6 @@ SDL_Texture* S9= NULL;
 SDL_Texture* S0= NULL;
 
 
-
-
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
 
@@ -76,9 +75,7 @@ SDL_Rect canal2rdw={760,290,152,365};
 SDL_Rect canal3rdw={760,570,152,85};
 SDL_Rect canal4rdw={760,470,152,185};
 //GameOver Rect
-SDL_Rect GO={0,0,500,500};
-//Nest Rect
-SDL_Rect Nest={0,0,100,100};
+SDL_Rect GO={80,130,500,500};
 //Points(Scores) Rect
 SDL_Rect score1={0,0,40,50};
 SDL_Rect score2={50,0,40,50};
@@ -87,9 +84,8 @@ SDL_Rect score2={50,0,40,50};
 
 //Surface for loading png images (except map)
 SDL_Surface* gSurface1 = NULL; //bird1
-SDL_Surface* canalsurface = NULL;
-SDL_Surface* background = NULL;
-SDL_Surface* GO_message = NULL;
+SDL_Surface* canalsurface= NULL;
+SDL_Surface* background=NULL;
 
 //keyboard states
 const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -172,11 +168,6 @@ bool init()
 			Canal_Surface = SDL_LoadBMP("Media/canal4dw.bmp");
 			canal4dw = SDL_CreateTextureFromSurface(gRenderer, Canal_Surface);
 
-			bird1.x = 340;
-    		bird1.y = 360;
-			grect1.x = bird1.x;
-			grect1.y = bird1.y;
-
 			//Scores media
 			S0 = IMG_LoadTexture(gRenderer, "Numbers/0.png");
 			S1 = IMG_LoadTexture(gRenderer, "Numbers/1.png");
@@ -188,6 +179,11 @@ bool init()
 			S7 = IMG_LoadTexture(gRenderer, "Numbers/7.png");
 			S8 = IMG_LoadTexture(gRenderer, "Numbers/8.png");
 			S9 = IMG_LoadTexture(gRenderer, "Numbers/9.png");
+
+			bird1.x = 340;
+    		bird1.y = 360;
+			grect1.x = bird1.x;
+			grect1.y = bird1.y;
 		}
 	}
 
@@ -262,9 +258,24 @@ bool checkcollision()
 			return false;
 		}
 
+		//up wall
+		if (grect1.y<0)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+		//ground
+		if (grect1.y>600)
+		{
+			bird1.lose = true;
+			Mix_PlayChannel(-1, Lose_sound, 0);
+			return false;
+		}
+
 		return true;
 	}
-	
+	return false;
 }
 
 bool start = false;
@@ -298,6 +309,10 @@ bool movebird(SDL_Event e, bool *quit)
 		{
 			start = true;
 			bird1.speed += 0.9;
+		}
+		if (e.type == SDL_QUIT)
+		{
+			*quit = true;
 		}
 	}
 
@@ -507,22 +522,33 @@ void setcn2()
 	cn2 = rand() % 2 + 1;
 }
 
-
-
-void GameOver(SDL_Event e)
+void GameOver(SDL_Event e, bool *quit)
 {
-	Gameover = true;
+	
+	GO.h = 450;
+	GO.w = 600;
 	POINTS = 0;
-	GO.h = 500;
-	GO.w = 500;
+	Gameover = true;
 	// StartGame = false;
+	gSurface1 = SDL_LoadBMP("Media/GO.bmp");
+	if(loadendemage==false)
+	{
+	gTexture2 = SDL_CreateTextureFromSurface(gRenderer, gSurface1);
+	
+	loadendemage=true;
+	}
 	SDL_FreeSurface(gSurface1);
 	SDL_DestroyTexture(gTexture1);
-	gSurface1 = SDL_LoadBMP("Media/GO.bmp");
-	gTexture2 = SDL_CreateTextureFromSurface(gRenderer, gSurface1);
+	
+	
 	SDL_PollEvent(&e);
+		if (e.type == SDL_QUIT)
+		{
+			*quit = true;
+		}
 	if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
 	{
+		start=false;
 		SDL_DestroyTexture(gTexture2);
 		GO.h = 0;
 		GO.w = 0;
@@ -574,11 +600,13 @@ void GameOver(SDL_Event e)
 			break;
 		}
 		}
+		loadendemage=false;
 	}
 }
 
 int main()
 {
+	loadendemage=false;
 	run = true;
 	srand(time(0));
 	setcn2();
@@ -647,8 +675,8 @@ int main()
 				SDL_RenderCopy(gRenderer, gTexture1, NULL, &grect1);
 				SDL_RenderPresent(gRenderer);
 				if (movebird(e, quit) == false)
-				{
-					GameOver(e);
+				{			
+					GameOver(e,quit);
 				}
 			} while (!*quit);
 
