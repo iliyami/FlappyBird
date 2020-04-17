@@ -5,13 +5,11 @@
 #include <cmath>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-//#include <SDL2/SDL_ttf.h>
-#include<SDL2/SDL2_gfxPrimitives.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
 #include "Bird.h"
+#include "Canal.h"
 
 using namespace std;
-
 
 bool run;
 bool Gameover;
@@ -64,23 +62,12 @@ SDL_Surface* Canal_Surface = NULL;
 SDL_Rect grect1;
 //Baclground Rects
 SDL_Rect backrect={0,0,2280,800};
-//Up Canals Rects
-SDL_Rect canal1rup={760,0,152,460};
-SDL_Rect canal2rup={760,0,152,120};
-SDL_Rect canal3rup={760,0,152,400};
-SDL_Rect canal4rup={760,0,152,300};
-//Down Canals Rects
-SDL_Rect canal1rdw={760,630,152,25};
-SDL_Rect canal2rdw={760,290,152,365};
-SDL_Rect canal3rdw={760,570,152,85};
-SDL_Rect canal4rdw={760,470,152,185};
+
 //GameOver Rect
 SDL_Rect GO={80,130,500,500};
 //Points(Scores) Rect
 SDL_Rect score1={0,0,40,50};
 SDL_Rect score2={50,0,40,50};
-
-
 
 //Surface for loading png images (except map)
 SDL_Surface* gSurface1 = NULL; //bird1
@@ -205,53 +192,53 @@ void loadMedia()
    	gbackgroundT = SDL_CreateTextureFromSurface(gRenderer, background);
 }
 
-bool checkcollision()
+bool checkcollision(Canal &canal)
 {
 	if (Gameover == false)
 	{
-		if (SDL_HasIntersection(&grect1, &canal1rup) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal1rup) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
 			return false;
 		}
-		if (SDL_HasIntersection(&grect1, &canal1rdw) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal1rdw) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
 			return false;
 		}
-		if (SDL_HasIntersection(&grect1, &canal2rup) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal2rup) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
 			return false;
 		}
-		if (SDL_HasIntersection(&grect1, &canal2rdw) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal2rdw) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
 			return false;
 		}
-		if (SDL_HasIntersection(&grect1, &canal3rup) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal3rup) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
 			return false;
 		}
-		if (SDL_HasIntersection(&grect1, &canal3rdw) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal3rdw) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
 			return false;
 		}
-		if (SDL_HasIntersection(&grect1, &canal4rup) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal4rup) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
 			return false;
 		}
-		if (SDL_HasIntersection(&grect1, &canal4rdw) == true)
+		if (SDL_HasIntersection(&grect1, &canal.canal4rdw) == true)
 		{
 			bird1.lose = true;
 			Mix_PlayChannel(-1, Lose_sound, 0);
@@ -279,7 +266,7 @@ bool checkcollision()
 }
 
 bool start = false;
-bool movebird(SDL_Event e, bool *quit)
+bool movebird(SDL_Event e, bool *quit, Canal &canal)
 {
 	if (start)
 	{
@@ -317,7 +304,7 @@ bool movebird(SDL_Event e, bool *quit)
 	}
 
 	grect1 = {bird1.x, bird1.y, 60, 60};
-	return checkcollision();
+	return checkcollision(canal);
 }
 
 void Points()
@@ -405,114 +392,6 @@ bool endcanal1=false;
 bool endcanal2=false;//ezaf
 int canalnum=0;
 
-void canal_move()
-{
-	float speed = 1;
-	if (cn == 1 && !endcanal1)
-	{
-
-		endcanal1 = true;
-		canalnum = 1;
-	}
-	if (cn == 2 && !endcanal1)
-	{
-
-		endcanal1 = true;
-		canalnum = 2;
-	}
-	if (cn == 3 && !endcanal1)
-	{
-
-		endcanal1 = true;
-		canalnum = 3;
-	}
-	if (cn == 4 && !endcanal1)
-	{
-
-		endcanal1 = true;
-		canalnum = 4;
-	}
-	if (endcanal1)
-	{
-		switch (canalnum)
-		{
-		case 1:
-		{
-			canal1rdw.x -= speed;
-			canal1rup.x -= speed;
-			if (canal1rup.x < -152)
-			{
-				canal1rup.x = 760;
-				canal1rdw.x = 760;
-				endcanal1 = false;
-			}
-			if (canal1rup.x == grect1.x - 150)
-			{
-				POINTS++;
-				Mix_PlayChannel(-1, Point, 0);
-			}
-			
-
-			break;
-		}
-
-		case 2:
-		{
-			canal2rdw.x -= speed;
-			canal2rup.x -= speed;
-			if (canal2rup.x < -152)
-			{
-				canal2rup.x = 760;
-				canal2rdw.x = 760;
-				endcanal1 = false;
-			}
-			if (canal2rup.x == grect1.x - 150)
-			{
-				POINTS++;
-				Mix_PlayChannel(-1, Point, 0);
-			}
-			break;
-		}
-
-		case 3:
-		{
-			canal3rdw.x -= speed;
-			canal3rup.x -= speed;
-			if (canal3rup.x < -152)
-			{
-				canal3rup.x = 760;
-				canal3rdw.x = 760;
-				endcanal1 = false;
-			}
-			if ( canal3rup.x == grect1.x - 150)
-			{
-				POINTS++;
-				Mix_PlayChannel(-1, Point, 0);
-			}
-			break;
-		}
-
-		case 4:
-		{
-			canal4rdw.x -= speed;
-			canal4rup.x -= speed;
-			if (canal4rup.x < -152)
-			{
-				canal4rup.x = 760;
-				canal4rdw.x = 760;
-				endcanal1 = false;
-			}
-			if (canal4rup.x == grect1.x - 150)
-			{
-				POINTS++;
-				Mix_PlayChannel(-1, Point, 0);
-			}
-			break;
-		}
-		}
-	}
-}
-
 void setcn()
 {
 	cn = rand() % 4 + 1;
@@ -522,7 +401,7 @@ void setcn2()
 	cn2 = rand() % 2 + 1;
 }
 
-void GameOver(SDL_Event e, bool *quit)
+void GameOver(SDL_Event e, bool *quit, Canal canal)
 {
 	
 	GO.h = 450;
@@ -572,31 +451,31 @@ void GameOver(SDL_Event e, bool *quit)
 		case 1:
 		{
 
-			canal1rup.x = 760;
-			canal1rdw.x = 760;
+			canal.canal1rup.x = 760;
+			canal.canal1rdw.x = 760;
 			break;
 		}
 
 		case 2:
 		{
 
-			canal2rup.x = 760;
-			canal2rdw.x = 760;
+			canal.canal2rup.x = 760;
+			canal.canal2rdw.x = 760;
 
 			break;
 		}
 
 		case 3:
 		{
-			canal3rup.x = 760;
-			canal3rdw.x = 760;
+			canal.canal3rup.x = 760;
+			canal.canal3rdw.x = 760;
 			break;
 		}
 
 		case 4:
 		{
-			canal4rup.x = 760;
-			canal4rdw.x = 760;
+			canal.canal4rup.x = 760;
+			canal.canal4rdw.x = 760;
 			break;
 		}
 		}
@@ -606,6 +485,7 @@ void GameOver(SDL_Event e, bool *quit)
 
 int main()
 {
+	Canal canal;
 	loadendemage=false;
 	run = true;
 	srand(time(0));
@@ -644,14 +524,14 @@ int main()
 			{
 				//grect1 = {bird1.x , bird1.y , 60, 60};
 				SDL_RenderCopy(gRenderer, gbackgroundT, NULL, &backrect);
-				SDL_RenderCopy(gRenderer, canal1up, NULL, &canal1rup);
-				SDL_RenderCopy(gRenderer, canal2up, NULL, &canal2rup);
-				SDL_RenderCopy(gRenderer, canal3up, NULL, &canal3rup);
-				SDL_RenderCopy(gRenderer, canal4up, NULL, &canal4rup);
-				SDL_RenderCopy(gRenderer, canal1dw, NULL, &canal1rdw);
-				SDL_RenderCopy(gRenderer, canal2dw, NULL, &canal2rdw);
-				SDL_RenderCopy(gRenderer, canal3dw, NULL, &canal3rdw);
-				SDL_RenderCopy(gRenderer, canal4dw, NULL, &canal4rdw);
+				SDL_RenderCopy(gRenderer, canal1up, NULL, &canal.canal1rup);
+				SDL_RenderCopy(gRenderer, canal2up, NULL, &canal.canal2rup);
+				SDL_RenderCopy(gRenderer, canal3up, NULL, &canal.canal3rup);
+				SDL_RenderCopy(gRenderer, canal4up, NULL, &canal.canal4rup);
+				SDL_RenderCopy(gRenderer, canal1dw, NULL, &canal.canal1rdw);
+				SDL_RenderCopy(gRenderer, canal2dw, NULL, &canal.canal2rdw);
+				SDL_RenderCopy(gRenderer, canal3dw, NULL, &canal.canal3rdw);
+				SDL_RenderCopy(gRenderer, canal4dw, NULL, &canal.canal4rdw);
 				SDL_RenderCopy(gRenderer, gTexture2, NULL, &GO);
 				Points();
 
@@ -660,7 +540,8 @@ int main()
 				if (b == 10)
 				{
 					backrect.x -= 1;
-					canal_move(); //move canals
+					if(start)
+					canal.canal_move(cn,canalnum,POINTS,endcanal1,Gameover,grect1, Point); //move canals
 					setcn();
 
 					b = 0;
@@ -670,13 +551,19 @@ int main()
 				{
 					backrect.x = 0;
 				}
-				//end of movement of back ground
 
+				if (POINTS == 20)
+				{
+					SDL_Quit();
+				}
+				
+
+				//end of movement of back ground
 				SDL_RenderCopy(gRenderer, gTexture1, NULL, &grect1);
 				SDL_RenderPresent(gRenderer);
-				if (movebird(e, quit) == false)
+				if (movebird(e, quit, canal) == false)
 				{			
-					GameOver(e,quit);
+					GameOver(e,quit,canal);
 				}
 			} while (!*quit);
 
