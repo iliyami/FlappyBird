@@ -13,5 +13,4 @@ g++ main.cpp -w -lSDL2 -lSDL2_image -lSDL2_gfx -lSDL2_mixer -o run
 make sure you have the nessecery libraries!
 
 GitHub Link:
-
 https://github.com/iliyami/FlappyBird.git
